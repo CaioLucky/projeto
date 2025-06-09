@@ -27,17 +27,36 @@ exports.listarTarefas = (req,res) => {    //lista tarefa
             res.status(200).send(results)
     })
 }
+exports.filtrarTarefas = (req,res) => {    //lista tarefa
+    const { status } = req.query
+
+    conexao.query('SELECT * FROM  Tarefas WHERE status = ? ' ,[status], (err, results) => {
+        console.log(err)
+        if (err) {
+            res.status(500).send('Erro ao buscas Tarefas')
+        }
+    
+            res.status(200).send(results)
+    })
+}
 
 exports.atualizarTarefas = (req, res) => {  //atualiza a tarefa
     const { id } = req.params;
     const {titulo, descricao, status} = req.body;
-    const query = 'UPDATE tarefas SET titulo = ?, descricao = ?, status = ? WHERE id = ?';
+
+            let data_conclusao = null
+            if (status === "concluida") {
+                data_conclusao= new Date ();
+            }
+
+    const query = 'UPDATE tarefas SET titulo = ?, descricao = ?, status = ?, data_conclusao = ? WHERE id = ?';//
         
-    conexao.query(query, [titulo, descricao, status, id], (err, results) => {
+    conexao.query(query, [titulo, descricao, status, data_conclusao, id], (err, results) => {
         if (err) return res.status(500).send('Erro ao atualizar');
         if (results.affectedRows === 0) return res.status(404).send('tarefa não encontrada');
         res.send('tarefa atualizada com sucesso');
     })
+
 }
 
 exports.deletarTarefas = (req, res)=>{  //deleta a tarefa
@@ -49,3 +68,4 @@ exports.deletarTarefas = (req, res)=>{  //deleta a tarefa
         res.status(200).send('Tarefa deletada com sucesso');
     })
 }
+
